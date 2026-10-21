@@ -81,7 +81,7 @@ class LLMPromptGenerator:
 
     RETURN_TYPES = ("STRING","STRING","STRING","INT",)
     RETURN_NAMES = ("正面提示词","负面提示词","思维链","对话轮数",)
-    CATEGORY = "LLM_Generator/"
+    CATEGORY = "Coore Tool Nodes/LLM Generator/"
     FUNCTION = "execute"
 
     api_key = str()

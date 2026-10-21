@@ -1,8 +1,10 @@
-from File_Operation.Numbering_Folder_Creater import NODE_CLASS_MAPPINGS as FOLDER_CREATER_CLASS
-from File_Operation.Numbering_Folder_Creater import NODE_DISPLAY_NAME_MAPPINGS as FOLDER_CREATER_NAME
+import logging
 
-from LLM_Generator.LLM_Prompt_Generator import NODE_CLASS_MAPPINGS as LLM_PROMPT_CLASS
-from LLM_Generator.LLM_Prompt_Generator import NODE_DISPLAY_NAME_MAPPINGS as LLM_PROMPT_NAME
+from .File_Operation.Numbering_Folder_Creater import NODE_CLASS_MAPPINGS as FOLDER_CREATER_CLASS
+from .File_Operation.Numbering_Folder_Creater import NODE_DISPLAY_NAME_MAPPINGS as FOLDER_CREATER_NAME
+
+from .LLM_Generator.LLM_Prompt_Generator import NODE_CLASS_MAPPINGS as LLM_PROMPT_CLASS
+from .LLM_Generator.LLM_Prompt_Generator import NODE_DISPLAY_NAME_MAPPINGS as LLM_PROMPT_NAME
 
 NODE_CLASS_MAPPINGS = {}
 NODE_CLASS_MAPPINGS.update(FOLDER_CREATER_CLASS)
@@ -11,3 +13,5 @@ NODE_CLASS_MAPPINGS.update(LLM_PROMPT_CLASS)
 NODE_DISPLAY_NAME_MAPPINGS = {}
 NODE_DISPLAY_NAME_MAPPINGS.update(FOLDER_CREATER_NAME)
 NODE_DISPLAY_NAME_MAPPINGS.update(LLM_PROMPT_NAME)
+
+logging.getLogger(__name__).info("Coore Tool Nodes 加载成功！")
