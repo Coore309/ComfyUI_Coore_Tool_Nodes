@@ -8,7 +8,7 @@ class NumberingFolderCreater:
     @classmethod
     def INPUT_TYPES(cls):
         return {
-            "optional": {
+            "required": {
                 "prefix": ("STRING",{
                     "default": "",
                     "tooltip": "创建文件名时，加在序号前的文件夹前缀"
@@ -36,6 +36,12 @@ class NumberingFolderCreater:
                     "min": 1,
                     "step": 1
                 })
+            },
+            "optional": {
+                "trigger": ("*", {
+                    "forceInput": True,
+                    "tooltip": "前驱输入接口，只有在前驱数据返回内容时，才会运行本节点。本节点不储存、不处理前驱数据"
+                    }),
             }
         }
 
@@ -46,18 +52,22 @@ class NumberingFolderCreater:
     FUNCTION = "execute"
 
     @classmethod
-    def IS_CHANGED(cls, prefix, suffix, basic_path, path, step, width):
+    def IS_CHANGED(cls, prefix, suffix, basic_path, path, step, width, trigger):
         return float("nan")
 
-    def execute(self, prefix, suffix, basic_path, path, step, width):
+    def execute(self, prefix, suffix, basic_path, path, step, width, trigger):
         mapPath = {
             "ComfyUI 输出文件夹": "output",
             "None": "none"
         }
 
+        # path 预处理
+        path = path.strip()
+        path = path.replace("\\", "/")
+
         outDir = str()
         if (mapPath.get(basic_path) == "output"):
-            outDir = os.path.join(folder_paths.get_output_directory(), path)
+            outDir = os.path.join(folder_paths.get_output_directory(), path).replace("\\", "/")
         else:
             outDir = path
 
@@ -72,7 +82,7 @@ class NumberingFolderCreater:
 
         folders = []
         for name in names:
-            fullPath = os.path.join(outDir, name)
+            fullPath = os.path.join(outDir, name).replace("\\", "/")
             if os.path.isdir(fullPath):
                 folders.append(name)
 
@@ -102,10 +112,11 @@ class NumberingFolderCreater:
         # 拼接名字，创建文件夹
         newFolderName = prefix + str(maxNum + step).zfill(width) + suffix
 
-        os.makedirs(os.path.join(outDir, newFolderName), exist_ok = True)
-        log.info(f"创建文件夹 {newFolderName} 于 {os.path.join(outDir, newFolderName)}")
+        targetDir = os.path.join(outDir, newFolderName).replace("\\", "/")
+        os.makedirs(targetDir, exist_ok = True)
+        log.info(f"创建文件夹 {newFolderName} 于 {targetDir}")
 
-        return (newFolderName, maxNum,)
+        return (targetDir, maxNum,)
 
 NODE_CLASS_MAPPINGS = {"NumberingFolderCreater": NumberingFolderCreater}
 NODE_DISPLAY_NAME_MAPPINGS = {"NumberingFolderCreater": "序号文件夹生成器"}
