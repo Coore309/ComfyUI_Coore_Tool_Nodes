@@ -17,6 +17,14 @@ class NumberingFolderCreater:
                     "default": "",
                     "tooltip": "创建文件名时，加在序号前的文件夹后缀"
                 }),
+                "basic_path": (["ComfyUI 输出文件夹","None"], {
+                    "default": "ComfyUI 输出文件夹",
+                    "tooltip": "基本路径，若为 None ，则必须在 path 中输入绝对路径"
+                }),
+                "path": ("STRING", {
+                    "default": "",
+                    "tooltip": "文件夹所在路径，若 basic_path 为 None ，则必须在此输入绝对路径"
+                }),
                 "step": ("INT",{
                     "default": 1,
                     "step": 1,
@@ -38,21 +46,37 @@ class NumberingFolderCreater:
     FUNCTION = "execute"
 
     @classmethod
-    def IS_CHANGED(cls, prefix, suffix, step, width):
+    def IS_CHANGED(cls, prefix, suffix, basic_path, path, step, width):
         return float("nan")
 
-    def execute(self, prefix, suffix, step, width):
-        outDir = folder_paths.get_output_directory()
+    def execute(self, prefix, suffix, basic_path, path, step, width):
+        mapPath = {
+            "ComfyUI 输出文件夹": "output",
+            "None": "none"
+        }
+
+        outDir = str()
+        if (mapPath.get(basic_path) == "output"):
+            outDir = os.path.join(folder_paths.get_output_directory(), path)
+        else:
+            outDir = path
+
+        try:
+            os.makedirs(outDir, exist_ok = True)
+        except Exception as e:
+            raise ValueError(f"无法解析路径 {outDir}")
+        
         log.info(f"当前输出文件夹为：{outDir}")
         log.info("开始扫描输出文件夹……")
         names = os.listdir(outDir)
 
         folders = []
         for name in names:
-            fullPath = os.path.join(outDir, name)
+            fullPath = os.path. join(outDir, name)
             if os.path.isdir(fullPath):
                 folders.append(name)
 
+        # 文件夹名检测
         maxNum = 0
         for folderName in folders:
             i = 0
@@ -75,9 +99,10 @@ class NumberingFolderCreater:
             maxNum = max(maxNum,int(folderName[len(prefix):len(prefix)+width]))
         log.info(f"扫描完成！当前最大序号为 {maxNum}")
 
-        newFolderName = prefix + str(maxNum + 1).zfill(width) + suffix
+        # 拼接名字，创建文件夹
+        newFolderName = prefix + str(maxNum + step).zfill(width) + suffix
 
-        os.mkdir(os.path.join(outDir, newFolderName))
+        os.makedirs(os.path.join(outDir, newFolderName), exist_ok = True)
         log.info(f"创建文件夹 {newFolderName} 于 {os.path.join(outDir, newFolderName)}")
 
         return (newFolderName, maxNum,)

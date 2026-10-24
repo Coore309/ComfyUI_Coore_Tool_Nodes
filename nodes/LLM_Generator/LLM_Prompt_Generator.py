@@ -155,4 +155,4 @@ class LLMPromptGenerator:
 
 
 NODE_CLASS_MAPPINGS = {"LLMPromptGenerator": LLMPromptGenerator}
-NODE_DISPLAY_NAME_MAPPINGS = {"LLMPromptGenerator": "LLM 提示词生成器"}
+NODE_DISPLAY_NAME_MAPPINGS = {"LLMPromptGenerator": "LLM 提示词生成器（不可用）"}
