@@ -72,7 +72,7 @@ class NumberingFolderCreater:
 
         folders = []
         for name in names:
-            fullPath = os.path. join(outDir, name)
+            fullPath = os.path.join(outDir, name)
             if os.path.isdir(fullPath):
                 folders.append(name)
 
