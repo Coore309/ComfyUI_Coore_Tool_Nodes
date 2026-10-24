@@ -8,7 +8,7 @@ class NumberingFolderCreater:
     @classmethod
     def INPUT_TYPES(cls):
         return {
-            "optional": {
+            "required": {
                 "prefix": ("STRING",{
                     "default": "",
                     "tooltip": "创建文件名时，加在序号前的文件夹前缀"
@@ -16,6 +16,14 @@ class NumberingFolderCreater:
                 "suffix": ("STRING",{
                     "default": "",
                     "tooltip": "创建文件名时，加在序号前的文件夹后缀"
+                }),
+                "basic_path": (["ComfyUI 输出文件夹","None"], {
+                    "default": "ComfyUI 输出文件夹",
+                    "tooltip": "基本路径，若为 None ，则必须在 path 中输入绝对路径"
+                }),
+                "path": ("STRING", {
+                    "default": "",
+                    "tooltip": "文件夹所在路径，若 basic_path 为 None ，则必须在此输入绝对路径"
                 }),
                 "step": ("INT",{
                     "default": 1,
@@ -28,6 +36,12 @@ class NumberingFolderCreater:
                     "min": 1,
                     "step": 1
                 })
+            },
+            "optional": {
+                "trigger": ("*", {
+                    "forceInput": True,
+                    "tooltip": "前驱输入接口，只有在前驱数据返回内容时，才会运行本节点。本节点不储存、不处理前驱数据"
+                    }),
             }
         }
 
@@ -38,21 +52,41 @@ class NumberingFolderCreater:
     FUNCTION = "execute"
 
     @classmethod
-    def IS_CHANGED(cls, prefix, suffix, step, width):
+    def IS_CHANGED(cls, prefix, suffix, basic_path, path, step, width, trigger):
         return float("nan")
 
-    def execute(self, prefix, suffix, step, width):
-        outDir = folder_paths.get_output_directory()
+    def execute(self, prefix, suffix, basic_path, path, step, width, trigger):
+        mapPath = {
+            "ComfyUI 输出文件夹": "output",
+            "None": "none"
+        }
+
+        # path 预处理
+        path = path.strip()
+        path = path.replace("\\", "/")
+
+        outDir = str()
+        if (mapPath.get(basic_path) == "output"):
+            outDir = os.path.join(folder_paths.get_output_directory(), path).replace("\\", "/")
+        else:
+            outDir = path
+
+        try:
+            os.makedirs(outDir, exist_ok = True)
+        except Exception as e:
+            raise ValueError(f"无法解析路径 {outDir}")
+        
         log.info(f"当前输出文件夹为：{outDir}")
         log.info("开始扫描输出文件夹……")
         names = os.listdir(outDir)
 
         folders = []
         for name in names:
-            fullPath = os.path.join(outDir, name)
+            fullPath = os.path.join(outDir, name).replace("\\", "/")
             if os.path.isdir(fullPath):
                 folders.append(name)
 
+        # 文件夹名检测
         maxNum = 0
         for folderName in folders:
             i = 0
@@ -75,12 +109,14 @@ class NumberingFolderCreater:
             maxNum = max(maxNum,int(folderName[len(prefix):len(prefix)+width]))
         log.info(f"扫描完成！当前最大序号为 {maxNum}")
 
-        newFolderName = prefix + str(maxNum + 1).zfill(width) + suffix
+        # 拼接名字，创建文件夹
+        newFolderName = prefix + str(maxNum + step).zfill(width) + suffix
 
-        os.mkdir(os.path.join(outDir, newFolderName))
-        log.info(f"创建文件夹 {newFolderName} 于 {os.path.join(outDir, newFolderName)}")
+        targetDir = os.path.join(outDir, newFolderName).replace("\\", "/")
+        os.makedirs(targetDir, exist_ok = True)
+        log.info(f"创建文件夹 {newFolderName} 于 {targetDir}")
 
-        return (newFolderName, maxNum,)
+        return (targetDir, maxNum,)
 
 NODE_CLASS_MAPPINGS = {"NumberingFolderCreater": NumberingFolderCreater}
 NODE_DISPLAY_NAME_MAPPINGS = {"NumberingFolderCreater": "序号文件夹生成器"}
