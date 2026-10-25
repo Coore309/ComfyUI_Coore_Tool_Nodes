@@ -116,7 +116,7 @@ class NumberingFolderCreater:
         os.makedirs(targetDir, exist_ok = True)
         log.info(f"创建文件夹 {newFolderName} 于 {targetDir}")
 
-        return (targetDir, maxNum,)
+        return (targetDir, maxNum + step,)
 
 NODE_CLASS_MAPPINGS = {"NumberingFolderCreater": NumberingFolderCreater}
 NODE_DISPLAY_NAME_MAPPINGS = {"NumberingFolderCreater": "序号文件夹生成器"}
