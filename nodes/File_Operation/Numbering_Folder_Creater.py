@@ -52,10 +52,10 @@ class NumberingFolderCreater:
     FUNCTION = "execute"
 
     @classmethod
-    def IS_CHANGED(cls, prefix, suffix, basic_path, path, step, width, trigger):
+    def IS_CHANGED(cls, prefix, suffix, basic_path, path, step, width, trigger = None):
         return float("nan")
 
-    def execute(self, prefix, suffix, basic_path, path, step, width, trigger):
+    def execute(self, prefix, suffix, basic_path, path, step, width, trigger = None):
         mapPath = {
             "ComfyUI 输出文件夹": "output",
             "None": "none"
